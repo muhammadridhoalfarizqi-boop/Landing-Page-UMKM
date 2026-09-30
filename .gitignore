@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build output (optional - keep if you want to track)
+# css/tailwind.css
+# js/*.min.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Lighthouse reports
+lighthouse-report.json
+
+# Misc
+*.tgz
+.cache/
