@@ -81,13 +81,12 @@
   }
 
   function renderRatingSummary() {
-    var total = 0, sum = 0, count = 0;
+    var total = 0, wsum = 0;
     products.forEach(function (p) {
-      sum += p.rating;
+      wsum += p.rating * p.jumlahReview;
       total += p.jumlahReview;
-      count++;
     });
-    var avg = sum / count;
+    var avg = total ? wsum / total : 0;
     var host = document.getElementById("rating-summary");
     if (!host) return;
 
