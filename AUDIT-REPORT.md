@@ -132,7 +132,7 @@ Nanti (nice-to-have): skeleton, PWA, galeri/video, dark mode, multi-bahasa.
 
 ## 7. Skor Lighthouse asli + yang tidak bisa diverifikasi
 
-Hasil run 2026-10-07, serve lokal `python -m http.server 8123`, Chrome headless `--no-proxy-server`.
+Run awal 2026-10-07, serve lokal `python -m http.server 8123`, Chrome headless `--no-proxy-server`.
 File: `%TEMP%\opencode\lighthouse-brewaroma-mobile.json`, `%TEMP%\opencode\lighthouse-brewaroma-desktop.json` (file `lighthouse-report.json` lama tidak ditimpa).
 
 | Mode | Performance | Accessibility | Best Practices | SEO |
@@ -140,8 +140,29 @@ File: `%TEMP%\opencode\lighthouse-brewaroma-mobile.json`, `%TEMP%\opencode\light
 | Mobile | 99 | 93 | 100 | 100 |
 | Desktop | 100 | 93 | 100 | 100 |
 
-Web Vitals lab: Mobile LCP 1.8s, CLS 0.045, TBT 0ms, FCP 1.4s. Desktop LCP 0.5s, CLS 0.047, TBT 0ms, FCP 0.4s.
-Catatan: klaim `README.md:14-20` (95/96/100/100) ternyata konservatif — skor lokal lebih tinggi. Tapi SEO 100 dari Lighthouse menyesatkan: audit otomatis tidak tahu konten produk/testimoni JS-only (S2) dan tanpa OG/canonical (S1). Failing audits mobile: `color-contrast`, `label-content-name-mismatch`, `link-in-text-block`, `unminified-css` (hemat 8KiB), `render-blocking-insight` (hemat 660ms), `image-delivery-insight` (hemat 99KiB).
+Web Vitals lab (awal): Mobile LCP 1.8s, CLS 0.045, TBT 0ms, FCP 1.4s. Desktop LCP 0.5s, CLS 0.047, TBT 0ms, FCP 0.4s.
+
+### Run ulang 2026-10-07 (setelah item 1-7), serve `python -m http.server 8135`
+
+File: `%TEMP%\opencode\lighthouse-brewaroma-mobile-2.json`, `%TEMP%\opencode\lighthouse-brewaroma-desktop-2.json` (`lighthouse-report.json` tidak ditimpa).
+
+| Mode | Performance | Accessibility | Best Practices | SEO |
+|------|-------------|---------------|----------------|-----|
+| Mobile | 99 | 96 | 100 | 100 |
+| Desktop | 100 | 96 | 100 | 100 |
+
+Web Vitals lab (baru): Mobile LCP 1.6s, CLS 0, TBT 0ms, FCP 1.4s, SI 2.2s. Desktop LCP 0.5s, CLS 0.036, TBT 0ms, FCP 0.4s.
+
+Perbandingan vs skor awal (Mobile Perf 99, A11y 93, BP 100, SEO 100): Performance/BP/SEO tetap, Accessibility naik 93 → 96 (kemungkinan dari target sentuh 44px item 6). CLS mobile membaik 0.045 → 0. LCP mobile membaik 1.8s → 1.6s.
+
+Yang berubah sejak audit awal: XSS `innerHTML` hilang (F2), rating berbobot 4.655 tampil 4.7 (F3), WA fallback `wa.me` di 4 CTA (F1), modal restore scroll + `preventScroll` (F4), SEO head + JSON-LD + robots + sitemap (S1/S3), target sentuh 44px semua (R1), README baru, `og:image` tetap pending.
+
+Tersisa: `og:image`/`twitter:image` pending (`assets/images/` kosong), foto produk masih Unsplash + avatar `pravatar.cc` (`image-delivery-insight` hemat 99KiB), aksesibilitas 96 belum 100, `render-blocking-insight` (hemat 520ms, font `@import`), `cache-insight` (hemat 33KiB).
+
+Masalah aksesibilitas yang ditandai Lighthouse (belum diperbaiki, sesuai instruksi):
+- `color-contrast`: 3 tombol WA (`wa.me/...` nav/hero/contact), `p.mt-4 text-sm text-stone-500`, `p.mt-6 text-xs text-stone-500`, `span#footer-year`.
+- `label-content-name-mismatch`: 8 kartu `article.product-card role="button"` (id 1-8) — label aksesibel tidak cocok dengan teks terlihat (temuan F5).
+- `agent-accessibility-tree`: pohon aksesibilitas tidak well-formed (turunan dari dua di atas).
 
 Awal: `lighthouse-report.json:9-13` gagal (`CHROME_INTERSTITIAL_ERROR`, target `http://localhost:3000/` tanpa server). Klaim README 95/96/100/100 belum terbukti — perlu cek.
 Belum verifikasi: Safari iOS, Samsung Internet, sentuh fisik, pembaca layar, pesanan WA nyata, akun IG benar, Core Web Vitals lapangan. Asumsi: kode lokal = deploy live, kecuali IG beda (U3).
