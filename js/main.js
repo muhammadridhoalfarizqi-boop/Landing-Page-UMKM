@@ -190,8 +190,9 @@
     modalEl.style.display = "none";
     modalEl.setAttribute("aria-hidden", "true");
     document.body.classList.remove("modal-open");
+    if (typeof savedScrollY === "number") window.scrollTo({ top: savedScrollY, left: 0, behavior: "instant" });
     if (lastFocusedEl && lastFocusedEl.focus) {
-      lastFocusedEl.focus();
+      lastFocusedEl.focus({ preventScroll: true });
     }
   }
 
