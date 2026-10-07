@@ -46,15 +46,17 @@ body {
 }
 
 .wa-btn-sm {
-  padding: 0.45rem 0.9rem;
+  padding: 0.7rem 1.1rem;
   font-size: 0.875rem;
   border-radius: 0.625rem;
+  min-height: 44px;
 }
 
 .btn-detail {
   display: block;
   width: 100%;
-  padding: 0.55rem 1rem;
+  padding: 0.75rem 1rem;
+  min-height: 44px;
   background-color: #f5f5f4;
   color: #44403c;
   font-weight: 600;
@@ -63,6 +65,12 @@ body {
   border-radius: 0.625rem;
   cursor: pointer;
   transition: all 0.15s ease;
+}
+
+#modal-wa.wa-btn {
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+  min-height: 44px;
 }
 
 .btn-detail:hover {
