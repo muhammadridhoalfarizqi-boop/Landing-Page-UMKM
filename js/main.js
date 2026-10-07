@@ -13,13 +13,23 @@
     });
   }
 
-  function starHtml(rating) {
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = text;
+    return node;
+  }
+
+  function setStars(container, rating) {
+    container.textContent = "";
     var full = Math.round(rating);
-    var s = "";
     for (var i = 1; i <= 5; i++) {
-      s += '<span class="' + (i <= full ? "star-fill" : "star-empty") + '" aria-hidden="true">★</span>';
+      var s = document.createElement("span");
+      s.className = i <= full ? "star-fill" : "star-empty";
+      s.setAttribute("aria-hidden", "true");
+      s.textContent = "★";
+      container.appendChild(s);
     }
-    return s;
   }
 
   function formatPrice(num) {
@@ -30,34 +40,43 @@
     var grid = document.getElementById("product-grid");
     if (!grid) return;
 
-    var html = "";
+    grid.textContent = "";
     products.forEach(function (p, i) {
-      var cardLabel = p.nama + ', ' + formatPrice(p.harga) + ', rating ' + p.rating + ' dari ' + p.jumlahReview + ' ulasan';
-      var imgAttrs = i === 0 ? 'fetchpriority="high"' : 'loading="lazy"';
-      html +=
-        '<article class="product-card bg-white shadow-md cursor-pointer" data-id="' + p.id + '" tabindex="0" role="button" aria-label="' + cardLabel + '">' +
-          '<img src="' + p.gambar + '" alt="' + p.nama + '" class="w-full h-52 object-cover" ' + imgAttrs + ' />' +
-          '<div class="p-4">' +
-            '<h3 class="font-bold text-stone-900 text-base leading-snug">' + p.nama + '</h3>' +
-            '<div class="flex items-center gap-1 mt-1">' + starHtml(p.rating) + '<span class="text-xs text-stone-500 ml-1">(' + p.jumlahReview + ")</span></div>" +
-            '<p class="mt-2 text-lg font-extrabold text-amber-800">' + formatPrice(p.harga) + "</p>" +
-            '<button type="button" class="btn-detail mt-3">Lihat Detail</button>' +
-          "</div>" +
-        "</article>";
-    });
-
-    grid.innerHTML = html;
-
-    grid.querySelectorAll(".product-card").forEach(function (card) {
+      var card = el("article", "product-card bg-white shadow-md cursor-pointer");
+      card.dataset.id = String(p.id);
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", p.nama + ", " + formatPrice(p.harga) + ", rating " + p.rating + " dari " + p.jumlahReview + " ulasan");
+      var img = document.createElement("img");
+      img.src = p.gambar;
+      img.alt = p.nama;
+      img.className = "w-full h-52 object-cover";
+      if (i === 0) img.setAttribute("fetchpriority", "high");
+      else img.setAttribute("loading", "lazy");
+      card.appendChild(img);
+      var body = el("div", "p-4");
+      body.appendChild(el("h3", "font-bold text-stone-900 text-base leading-snug", p.nama));
+      var rateRow = el("div", "flex items-center gap-1 mt-1");
+      var stars = el("span", null);
+      setStars(stars, p.rating);
+      rateRow.appendChild(stars);
+      rateRow.appendChild(el("span", "text-xs text-stone-500 ml-1", "(" + p.jumlahReview + ")"));
+      body.appendChild(rateRow);
+      body.appendChild(el("p", "mt-2 text-lg font-extrabold text-amber-800", formatPrice(p.harga)));
+      var btn = el("button", "btn-detail mt-3", "Lihat Detail");
+      btn.type = "button";
+      body.appendChild(btn);
+      card.appendChild(body);
       card.addEventListener("click", function () {
-        openProductModal(parseInt(card.dataset.id, 10), card);
+        openProductModal(p.id, card);
       });
       card.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          openProductModal(parseInt(card.dataset.id, 10), card);
+          openProductModal(p.id, card);
         }
       });
+      grid.appendChild(card);
     });
   }
 
@@ -69,45 +88,51 @@
       count++;
     });
     var avg = sum / count;
-    var el = document.getElementById("rating-summary");
-    if (!el) return;
+    var host = document.getElementById("rating-summary");
+    if (!host) return;
 
-    el.innerHTML =
-      '<div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">' +
-        '<div class="flex items-center gap-2">' +
-          '<span class="text-5xl font-extrabold text-amber-800">' + avg.toFixed(1) + "</span>" +
-          '<div class="flex flex-col">' +
-            '<div class="text-lg">' + starHtml(Math.round(avg)) + "</div>" +
-            '<span class="text-sm text-stone-500">dari 5</span>' +
-          "</div>" +
-        "</div>" +
-        '<div class="text-center sm:text-left">' +
-          '<p class="text-2xl font-bold text-stone-900">' + total + "+ review</p>" +
-          '<p class="text-sm text-stone-500">pelanggan puas</p>' +
-        "</div>" +
-      "</div>";
+    host.textContent = "";
+    var wrap = el("div", "flex flex-col sm:flex-row items-center gap-4 sm:gap-6");
+    var left = el("div", "flex items-center gap-2");
+    left.appendChild(el("span", "text-5xl font-extrabold text-amber-800", avg.toFixed(1)));
+    var col = el("div", "flex flex-col");
+    var starBox = el("div", "text-lg");
+    setStars(starBox, Math.round(avg));
+    col.appendChild(starBox);
+    col.appendChild(el("span", "text-sm text-stone-500", "dari 5"));
+    left.appendChild(col);
+    wrap.appendChild(left);
+    var right = el("div", "text-center sm:text-left");
+    right.appendChild(el("p", "text-2xl font-bold text-stone-900", total + "+ review"));
+    right.appendChild(el("p", "text-sm text-stone-500", "pelanggan puas"));
+    wrap.appendChild(right);
+    host.appendChild(wrap);
   }
 
   function renderTestimonials() {
     var grid = document.getElementById("testimonials-grid");
     if (!grid) return;
 
-    var html = "";
+    grid.textContent = "";
     testimonials.forEach(function (t) {
-      html +=
-        '<div class="bg-white rounded-xl shadow-md p-6">' +
-          '<div class="flex items-center gap-3">' +
-            '<img src="' + t.avatar + '" alt="Foto ' + t.nama + '" class="w-12 h-12 rounded-full object-cover" loading="lazy" />' +
-            "<div>" +
-              '<p class="font-semibold text-stone-900 text-sm">' + t.nama + "</p>" +
-              '<div class="text-xs">' + starHtml(t.rating) + "</div>" +
-            "</div>" +
-          "</div>" +
-          '<p class="mt-4 text-sm text-stone-600 leading-relaxed">"' + t.komentar + '"</p>' +
-        "</div>";
+      var card = el("div", "bg-white rounded-xl shadow-md p-6");
+      var head = el("div", "flex items-center gap-3");
+      var avatar = document.createElement("img");
+      avatar.src = t.avatar;
+      avatar.alt = "Foto " + t.nama;
+      avatar.className = "w-12 h-12 rounded-full object-cover";
+      avatar.setAttribute("loading", "lazy");
+      head.appendChild(avatar);
+      var who = el("div", null);
+      who.appendChild(el("p", "font-semibold text-stone-900 text-sm", t.nama));
+      var tb = el("div", "text-xs");
+      setStars(tb, t.rating);
+      who.appendChild(tb);
+      head.appendChild(who);
+      card.appendChild(head);
+      card.appendChild(el("p", "mt-4 text-sm text-stone-600 leading-relaxed", '"' + t.komentar + '"'));
+      grid.appendChild(card);
     });
-
-    grid.innerHTML = html;
   }
 
   var modalEl = document.getElementById("product-modal");
@@ -137,7 +162,15 @@
     document.getElementById("modal-image").src = p.gambar;
     document.getElementById("modal-image").alt = p.nama;
     document.getElementById("modal-title").textContent = p.nama;
-    document.getElementById("modal-rating").innerHTML = starHtml(p.rating) + '<span class="text-xs text-stone-500 ml-2">(' + p.jumlahReview + " review)</span>";
+    var modalRating = document.getElementById("modal-rating");
+    modalRating.textContent = "";
+    var ms = document.createElement("span");
+    setStars(ms, p.rating);
+    modalRating.appendChild(ms);
+    var mc = document.createElement("span");
+    mc.className = "text-xs text-stone-500 ml-2";
+    mc.textContent = "(" + p.jumlahReview + " review)";
+    modalRating.appendChild(mc);
     document.getElementById("modal-price").textContent = formatPrice(p.harga);
     document.getElementById("modal-desc").textContent = p.deskripsi;
 
