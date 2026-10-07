@@ -12,7 +12,7 @@ Skor keseluruhan: **68/100** (estimasi statis; skor Lighthouse asli menyusul di 
 
 | ID | Kategori | Severity | Temuan | Bukti (file:baris / langkah) | Rekomendasi perbaikan |
 |----|----------|----------|--------|-------------------------------|------------------------|
-| F1 | Fungsional | High | Link WA `href="#"` mati total jika JS gagal/lambat; semua CTA bergantung `applyWaLinks` | `index.html:28,39,114,143`; `js/main.js:8-13` | Isi `href` awal dengan URL `wa.me` final, JS hanya override. |
+| F1 | Fungsional | High | Link WA `href="#"` mati total jika JS gagal/lambat; semua CTA bergantung `applyWaLinks` | `index.html:28,39,114,143`; `js/main.js:8-13` | Isi `href` awal dengan URL `wa.me` final, JS hanya override. Catatan: nomor WA kini ada di dua tempat — `config.js:1` (sumber JS) dan href fallback `index.html:28,39,114,143`. README harus menyebut keduanya saat ganti nomor. |
 | F2 | Fungsional | High | Render produk/testimoni via string `innerHTML` tanpa sanitasi; payload `p.nama`/`komentar` bisa injeksi HTML | `js/main.js:35,38-43,96-106` | Bangun DOM via `textContent`/`createElement`, escape kutip di atribut. |
 | F3 | Fungsional | High | Rata-rata rating salah: mean dari rating, bukan rata-rata berbobot review; label "total+ review" menyesatkan | `js/main.js:64-71,78,85` | `avg = sum(rating*jumlahReview)/sum(jumlahReview)`. |
 | F4 | Fungsional | Medium | `savedScrollY` disimpan tapi tak dipakai; `aria-hidden` + `display:none` ganda di modal | `js/main.js:134,149-150,159` | Hapus `savedScrollY` atau restore di close; tambah `inert` pada latar saat modal buka. |
